@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111018"><title>Night City — Cyberpunk 2077 100%</title>
+<style>
+:root{color-scheme:dark;--bg:#101018;--panel:#191923;--line:#343443;--text:#f4f0f2;--muted:#aaa5b2;--red:#ed526c;--gold:#e6b35d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,Segoe UI,sans-serif}
+header{padding:26px 18px;background:linear-gradient(125deg,#171721,#321e2b 70%,#641f37);border-bottom:1px solid #824052}
+.wrap{max-width:1000px;margin:auto;padding:0 16px}h1{font-size:clamp(30px,7vw,54px);line-height:1;margin:15px 0 8px}h1 span{color:#ff607a}.eyebrow{letter-spacing:3px;color:#ff9aaa;font-size:11px;font-weight:800}
+.sub{color:#d2c5cb}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:18px 0}.stat,.panel,.group,.mission{background:var(--panel);border:1px solid var(--line);border-radius:12px}.stat{padding:12px}.stat strong{display:block;font-size:24px;color:var(--red)}.muted{color:var(--muted);font-size:12px}
+.progress{height:9px;background:#49404b;border-radius:20px;overflow:hidden;margin:10px 0}.progress i{display:block;height:100%;background:var(--red);width:0}
+.notice{background:#211e22;border-left:3px solid var(--gold);padding:12px;border-radius:6px;margin:16px 0;font-size:13px}
+nav{display:flex;gap:7px;overflow:auto;padding:8px 0 12px;position:sticky;top:0;background:var(--bg);z-index:2}
+button,.tab{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:9px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+button.active{background:#a52e49;border-color:#a52e49}.controls{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.search{width:100%;padding:12px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:white;font-size:15px}
+.group{margin:12px 0;overflow:hidden}.ghead{padding:14px;cursor:pointer;display:flex;justify-content:space-between;gap:12px;align-items:center}.ghead h2{font-size:16px;margin:0}.gbody{padding:0 10px 10px}.mission{margin:8px 0;overflow:hidden}.mrow{display:flex;gap:10px;align-items:flex-start;padding:12px}.mrow input{width:19px;height:19px;accent-color:var(--red);flex-shrink:0;margin-top:2px}.mrow input:checked~.mtext .mname{text-decoration:line-through;opacity:.55}.mtext{flex:1;min-width:0}.mname{font-weight:700}.tag{font-size:10px;background:#703046;color:white;padding:2px 6px;border-radius:4px;margin-left:5px}.details{font-size:13px;color:#ded9e1;border-top:1px solid var(--line);padding:12px;background:#14141c}.details b{color:#ff9aaa;display:block;margin:8px 0 2px}.details b:first-child{margin-top:0}.small{font-size:11px;color:var(--muted)}.hidden{display:none!important}footer{padding:30px 0;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="eyebrow">NIGHT CITY DATABASE · GUIDE FRANÇAIS</div><h1>CYBERPUNK <span>2077</span></h1><div class="sub">Jeu de base + Phantom Liberty · Checklist et guide détaillé</div>
+<div class="stats"><div class="stat"><span class="muted">Progression</span><strong id="pct">0%</strong></div><div class="stat"><span class="muted">Terminés</span><strong id="done">0</strong></div><div class="stat"><span class="muted">Restants</span><strong id="left">0</strong></div></div><div class="progress"><i id="bar"></i></div><div class="small"><span id="count">0</span> objectifs cochés · progression enregistrée sur cet appareil</div></div></header>
+<main class="wrap">
+<div class="notice"><b>⚠️ Conseils importants :</b> crée des sauvegardes manuelles avant The Heist, Chippin’ In, Firestarter et Nocturne OP55N1. Les délais, choix et branches peuvent verrouiller des missions ou récompenses. Les contrats et activités NCPD se valident en vérifiant les marqueurs de chaque quartier sur ta carte.</div>
+<nav id="tabs"><button class="active" data-tab="all">Tout</button><button data-tab="main">Histoire</button><button data-tab="side">Secondaires</button><button data-tab="world">Activités 100%</button><button data-tab="dlc">Phantom Liberty</button><button data-tab="loot">Collections</button><button data-tab="ends">Fins</button></nav>
+<input class="search" id="search" placeholder="Rechercher une mission, un objet, un choix…">
+<div class="controls"><button class="active" data-filter="all">Tout</button><button data-filter="todo">À faire</button><button data-filter="done">Terminés</button><button data-filter="important">Choix importants</button><button id="export">Exporter ma progression</button><button id="import">Importer</button><button id="reset">Réinitialiser</button><input id="file" type="file" accept=".json" hidden></div>
+<div id="groups"></div>
+<footer>Guide communautaire non officiel. Les conditions et récompenses peuvent varier selon la version du jeu et les choix effectués. Les compteurs de la carte en jeu font foi pour les activités NCPD et contrats. Les cases cochées sont sauvegardées localement dans le navigateur.</footer>
+</main>
+<script>
+const M=(name,objective,choice,reward,warning='',tag='')=>({name,objective,choice,reward,warning,tag});
+const G=[
+['main','01 · Prologue et The Heist',[
+M('Choisir son origine','Choisir Nomade, Gosse des rues ou Corpo. Chaque origine possède un prologue et des dialogues spécifiques.','Choisis selon ton rôle-play : aucune origine ne verrouille à elle seule les fins principales.','Dialogues et séquences propres à l’origine.','Une seule origine par partie.','CHOIX'),
+M('The Rescue','Sauver Sandra Dorsett avec Jackie. Examiner les lieux et suivre les objectifs.','Fouille les pièces accessibles avant de quitter.','Progression principale.'),
+M('The Ripperdoc','Visiter Viktor et recevoir les premiers implants.','Découvrir les menus cyberware et les styles de combat.','Premiers implants et tutoriel cyberware.'),
+M('The Ride','Rencontrer Dexter DeShawn et préparer le braquage.','Écouter les propositions et préparer l’opération.','Débloque les préparatifs.'),
+M('The Pickup','Récupérer le Flathead auprès de Maelström.','La puce Militech, la négociation et l’issue du conflit influencent les personnages rencontrés ensuite.','Chaos et Doom Doom peuvent dépendre de l’issue.','Fouille le repaire et vérifie le sort de Brick.','IMPORTANT'),
+M('Libérer Brick','Trouver la cellule dans le repaire Maelström et désamorcer le piège.','Le libérer peut avoir une incidence dans Second Conflict.','Possibilité de retrouver Brick plus tard.','Facile à manquer pendant The Pickup.','MANQUABLE'),
+M('The Information','Faire la braindance avec Evelyn.','Analyser les couches visuelles, thermiques et audio avant de sortir.','Indices pour le braquage.'),
+M('The Heist','Infiltrer Konpeki Plaza avec Jackie.','Fouiller la suite de Yorinobu et les accès extérieurs.','Kongou et Satori sont récupérables pendant cette mission.','Satori et certains objets ne seront plus accessibles après.','MANQUABLE'),
+M('Destination du corps de Jackie','Après le braquage, choisir où envoyer Jackie.','L’envoyer à sa famille pour débloquer les obsèques et Heroes.','Accès à Heroes et souvenirs de Jackie.','Évite de l’envoyer à Viktor si tu veux les obsèques.','CHOIX')
+]],
+['main','02 · Acte 2 : Evelyn et Pacifica',[
+M('Playing for Time','Après le réveil, parler à Johnny et reprendre ses repères.','Prendre le temps de découvrir les nouveaux dialogues.','Ouverture des branches de l’Acte 2.'),
+M('Automatic Love','Interroger les personnes du Clouds pour retrouver Evelyn.','Explorer les options de dialogue et les indices.','Suite de l’enquête.'),
+M('The Space in Between','Retrouver Fingers et l’interroger.','Un comportement agressif peut fermer certaines options de dialogue ou de commerce.','Poursuite de l’enquête.'),
+M('Disasterpiece','Suivre les pistes jusqu’au studio XBD.','Examiner les braindances et fouiller la zone.','Localisation d’Evelyn.'),
+M('Double Life','Explorer les braindances laissées par Evelyn.','Analyser les couches vidéo et audio.','Informations sur les Voodoo Boys.'),
+M('M’ap Tann Pèlerin','Entrer en contact avec les Voodoo Boys.','Suivre les intermédiaires et les indices.','Accès à I Walk the Line.'),
+M('I Walk the Line','Infiltrer le centre commercial et affronter Sasquatch ou la contourner.','Choisir l’approche de combat ou d’infiltration.','Progression Pacifica.'),
+M('Transmission','Rencontrer les Voodoo Boys et accéder au réseau.','Les décisions concernant NetWatch et les Voodoo Boys ont des conséquences.','Point d’accès habituel à Phantom Liberty.','Mission importante avant le DLC.','IMPORTANT')
+]],
+['main','03 · Acte 2 : Panam et Takemura',[
+M('Ghost Town','Retrouver Panam et préparer l’attaque contre Nash.','Aider Panam à récupérer son véhicule.','Débloque la suite de son histoire.'),
+M('Lightning Breaks','Accompagner Panam pour attaquer le convoi.','Suivre les objectifs et protéger Panam.','Progression de la piste Hellman.'),
+M('Life During Wartime','Poursuivre Hellman après l’attaque.','L’interroger pour obtenir des réponses.','Informations sur le Relic.'),
+M('Down on the Street','Retrouver Takemura et rencontrer Oda.','Rester diplomate si tu veux préserver l’alliance.','Suite de l’intrigue Arasaka.'),
+M('Gimme Danger','Préparer l’infiltration de la parade.','Reconnaître les lieux et choisir son approche.','Prépare Play It Safe.'),
+M('Play It Safe','Infiltrer le défilé Arasaka.','Neutraliser les tireurs et progresser avec Takemura.','Suite de l’histoire Hanako.'),
+M('Search and Destroy','Se rendre au rendez-vous avec Hanako.','Pendant l’attaque, revenir dans le bâtiment et chercher Takemura au lieu de fuir immédiatement.','Takemura peut survivre et apparaître dans la fin Arasaka.','On peut le laisser mourir sans s’en rendre compte.','MANQUABLE'),
+M('Tapeworm','Conversations avec Johnny après certaines missions.','Prendre le temps de discuter avec lui.','Développe la relation V/Johnny.')
+]],
+['side','04 · Judy Alvarez',[
+M('Both Sides, Now','Retrouver Judy après les événements autour d’Evelyn.','Être présent et attentif à ses demandes.','Débloque la suite de son arc.'),
+M('Ex-Factor','Aider Judy à contacter les anciennes travailleuses du Clouds.','Accepter de l’aider.','Prépare Talkin’ ’Bout a Revolution.'),
+M('Talkin’ ’Bout a Revolution','Participer à la réunion et écouter les propositions.','Rester engagé dans son plan.','Débloque Pisces.'),
+M('Pisces','Infiltrer le Clouds et gérer la confrontation avec Maiko.','Pour soutenir Judy, refuser le paiement de Maiko.','La relation avec Judy peut continuer.','Les choix influencent directement la suite.','CHOIX'),
+M('Pyramid Song','Accompagner Judy à Laguna Bend et explorer la ville sous l’eau.','Explorer les souvenirs et accepter le rapprochement si souhaité.','Fin de l’arc et possibilité de romance.','Romance réservée à V avec corps et voix féminins.','ROMANCE')
+]],
+['side','05 · Panam et les Aldecaldos',[
+M('Riders on the Storm','Sauver Saul du camp des Wraiths.','Rejoindre Panam sans trop tarder et sauver Saul.','Suite Aldecaldos.','Un délai peut faire échouer la mission.','DÉLAI'),
+M('With a Little Help from My Friends','Aider les Nomades à préparer le vol du Basilisk.','Ne pas dénoncer le plan à Saul.','Prépare Queen of the Highway.','Dénoncer le plan peut dégrader la relation.','CHOIX'),
+M('Queen of the Highway','Tester le Basilisk avec Panam.','Accepter le rapprochement si tu souhaites la romance.','Possibilité de romance et accès à la fin Nomades.','Romance réservée à V avec corps masculin.','ROMANCE'),
+M('I’ll Fly Away','Participer à la cérémonie en mémoire de Scorpion.','Prendre le temps de discuter au camp.','Mission facultative.'),
+M('Fortunate Son','Aider les Aldecaldos dans une affaire médicale.','Explorer les conséquences de la mission.','Récompenses et approfondissement de l’histoire.')
+]],
+['side','06 · River Ward',[
+M('I Fought the Law','Aider Elizabeth et Jefferson Peralez à enquêter sur la mort du maire.','Examiner les preuves et parler aux témoins.','Débloque The Hunt.'),
+M('The Hunt','Suivre River dans l’enquête sur son neveu.','Analyser les braindances et identifier la bonne ferme. Sauver Randy.','Sauver Randy et terminer l’histoire de River.','Une mauvaise ferme entraîne une issue tragique.','CHOIX'),
+M('Following the River','Partager un moment avec River et sa famille.','Accepter le rapprochement si tu souhaites la romance.','Possibilité de romance.','Romance réservée à V avec corps féminin.','ROMANCE')
+]],
+['side','07 · Johnny, Rogue et Kerry',[
+M('Chippin’ In','Accompagner Rogue et retrouver les traces de Johnny.','Au champ pétrolifère, privilégier les réponses conciliantes et lui accorder une seconde chance.','Porsche 911 Turbo et accès à Blistering Love. Peut permettre la fin secrète.','La conversation au champ pétrolifère est déterminante pour la voie secrète.','CRUCIAL'),
+M('Dialogue du champ pétrolifère','Conversation avec Johnny après Chippin’ In.','Réponses recommandées : « Le gars qui m’a sauvé la vie », « Non, t’as aussi merdé », « Qu’est-ce que tu veux de moi ? », puis « OK. Mais deuxième chance, c’est la dernière ».','Peut ouvrir Don’t Fear the Reaper.','La fin secrète ne dépend pas seulement du pourcentage d’affinité.','CRUCIAL'),
+M('Blistering Love','Accompagner Rogue dans un rendez-vous avec Johnny.','Favoriser leur rapprochement.','Accès à une voie de fin Rogue.'),
+M('Holdin’ On','Retrouver Kerry et le groupe Samurai.','Écouter les membres du groupe.','Débloque Second Conflict.'),
+M('Second Conflict','Gérer le retour de Samurai.','L’issue dépend notamment de The Pickup et du sort de Brick.','Suite de l’arc Kerry.'),
+M('A Like Supreme','Participer au concert.','Prendre part à la réunion du groupe.','Suite de Kerry.'),
+M('Rebel! Rebel!','Aider Kerry dans son projet.','Suivre ses indications.','Progression de son arc.'),
+M('I Don’t Wanna Hear It','Aider Kerry à contacter Us Cracks.','Choisir son approche pendant la rencontre.','Débloque Off the Leash.'),
+M('Off the Leash','Retrouver Kerry au club.','Explorer les dialogues.','Suite de la série.'),
+M('Boat Drinks','Accompagner Kerry sur le bateau.','Répondre selon la relation souhaitée.','Fin de l’arc et possibilité de romance pour V masculin.')
+]],
+['side','08 · Delamain et quêtes indépendantes',[
+M('Human Nature','Retrouver son véhicule après l’accident.','Terminer la séquence initiale.','Débloque la série Delamain.'),
+M('Epistrophy — Northside','Localiser le taxi défectueux.','S’approcher et interagir avec le véhicule.','Taxi récupéré.'),
+M('Epistrophy — Wellsprings','Retrouver le taxi dans Heywood.','Écouter son histoire.','Progression Delamain.'),
+M('Epistrophy — The Glen','Retrouver le taxi au bord de l’eau.','Interagir et résoudre la situation.','Progression Delamain.'),
+M('Epistrophy — Coastview','Suivre le taxi et survivre à sa confrontation.','Rester prudent face à ses pièges.','Progression Delamain.'),
+M('Epistrophy — Rancho Coronado','Retrouver le taxi dans le quartier.','Éviter les dégâts collatéraux.','Progression Delamain.'),
+M('Epistrophy — Badlands','Retrouver le taxi dans les Badlands.','Écouter et résoudre la situation.','Progression Delamain.'),
+M('Don’t Lose Your Mind','Infiltrer le centre Delamain.','Explorer les issues et décider du sort de l’IA.','Véhicule Delamain et conclusion variable.','Les options ont des conséquences narratives distinctes.','CHOIX'),
+M('Happy Together','Parler à Barry, le voisin de V.','L’écouter, examiner le mémorial et partager les informations avec ses amis.','Issue plus favorable si V prend le temps de l’écouter.','Ne pas ignorer les dialogues.','DÉLAI'),
+M('Dream On','Enquêter sur les Peralez.','Fouiller l’appartement et choisir quoi dire à Jefferson.','Conséquences narratives durables.','Le choix de révéler la vérité change les dialogues ultérieurs.','CHOIX'),
+M('Sinnerman','Accompagner un condamné et découvrir son projet.','Décider jusqu’où suivre la proposition de Joshua.','Arc narratif singulier.','Certaines étapes se manquent si tu refuses trop tôt.','CHOIX'),
+M('There Is a Light That Never Goes Out','Poursuivre l’histoire de Joshua.','Les choix de V influencent la conclusion.','Suite de Sinnerman.'),
+M('Killing in the Name','Aider Nancy à enquêter sur un groupe.','Suivre les indices informatiques et consulter les messages.','Résolution de l’enquête.'),
+M('The Beast in Me','Participer aux courses de Claire.','Écouter son histoire et décider comment gérer la course finale.','Véhicule selon la résolution.','La décision finale affecte l’issue de sa vengeance.','CHOIX'),
+M('Beat on the Brat','Battre les adversaires de boxe.','Améliorer les implants et préparer les combats.','Récompenses et expérience.'),
+M('The Prophet’s Song','Écouter Garry et suivre son enquête.','Revenir aux rendez-vous et observer les événements.','Conclusion de son histoire.')
+]],
+['world','09 · Contrats des fixers',[
+M('Watson — Regina Jones','Terminer tous les contrats affichés sur la carte de Watson.','Lire les objectifs, sauver les cibles demandées et récupérer les preuves.','Eddies, Street Cred, équipement et récompenses.'),
+M('Westbrook — Wakako Okada','Terminer tous les contrats de Westbrook.','Vérifier les objectifs secondaires et objets de mission.','Eddies et Street Cred.'),
+M('City Center — Dino Dinovic','Terminer les contrats de City Center.','Fouiller les lieux et récupérer les shards.','Eddies et équipement.'),
+M('Heywood — Padre','Terminer les contrats de Heywood.','Privilégier les objectifs demandant une extraction vivante.','Eddies et Street Cred.'),
+M('Santo Domingo — El Capitan','Terminer les contrats de Santo Domingo.','Fouiller les zones avant de partir.','Eddies et équipement.'),
+M('Pacifica — Mr. Hands','Terminer les contrats de Pacifica du jeu de base.','Respecter les objectifs du client.','Récompenses de contrat.'),
+M('Badlands — Dakota Smith','Terminer les contrats des Badlands.','Examiner véhicules, bâtiments et preuves.','Eddies, équipement et Street Cred.'),
+M('Vérifier tous les marqueurs de fixers','Revenir sur chaque quartier après progression de l’histoire.','Certains contrats se débloquent avec la réputation et les appels.','Compteurs de contrats complets.','La carte du jeu fait foi pour le total.')
+]],
+['world','10 · Cyberpsychos : les 17 enquêtes',[
+...['Demons of War — Watson','Six Feet Under — Watson','Lt. Mower — Watson','Where the Bodies Hit the Floor — Watson','Ticket to the Major Leagues — Watson','Bloody Ritual — Watson','Letter of the Law — Heywood','Seaside Cafe — Heywood','Discount Doc — Santo Domingo','Under the Bridge — Santo Domingo','Smoke on the Water — Pacifica','Lex Talionis — Pacifica','The Wasteland — Badlands','Second Chances — Badlands','House on a Hill — Badlands','On Deaf Ears — City Center','Phantom of Night City — City Center'].map(n=>M(n,'Retrouver la cyberpsycho, examiner la scène et neutraliser la cible.','Privilégier une neutralisation non létale. Scanner les indices, lire les shards et transmettre le rapport à Regina.','Progression de Psycho Killer et récompense finale après les 17 rapports.','Ne pas oublier d’envoyer les rapports à Regina.')),
+M('Clôturer Psycho Killer','Envoyer tous les rapports à Regina.','Confirmer la réception des informations.','Termine la série et donne accès à sa récompense.')
+]],
+['world','11 · NCPD et exploration',[
+...['Watson','Westbrook','City Center','Heywood','Santo Domingo','Pacifica','Badlands'].map(n=>M(n+' — scanner NCPD',`Terminer tous les crimes signalés, activités criminelles organisées et interventions NCPD de ${n}.`,'Récupérer les preuves, shards et butins. Vérifier les ennemis restants.','XP, Street Cred et butin.')),
+M('Vérifier les compteurs de quartier','Ouvrir la carte et vérifier que chaque type de marqueur est terminé.','Ne pas utiliser un total trouvé dans un guide comme seul indicateur.','Validation du 100 % des activités.','Le nombre peut varier selon les catégories et mises à jour.')
+]],
+['dlc','12 · Phantom Liberty : introduction',[
+M('Dog Eat Dog','Recevoir l’appel de Songbird et pénétrer dans Dogtown.','Suivre Songbird et les objectifs d’infiltration.','Accès à l’extension.'),
+M('Hole in the Sky','Aider à sécuriser le site du crash présidentiel.','Protéger Myers et suivre le parcours.','Progression de l’histoire.'),
+M('Spider and the Fly','Escorter la présidente et échapper aux forces ennemies.','Fouiller les pièces accessibles.','Suite de la protection de Myers.'),
+M('Lucretia My Reflection','Trouver un refuge et travailler avec Myers et Reed.','Écouter les informations de Reed.','Débloque les opérations suivantes.'),
+M('The Damned','Retrouver un ancien contact de Reed.','Préparer l’opération avec les agents.','Accès aux missions d’infiltration.'),
+M('Get It Together','Organiser la rencontre et réunir les informations nécessaires.','Terminer les préparatifs.','Prépare You Know My Name.'),
+M('You Know My Name','Infiltrer la réception et rencontrer Songbird.','Utiliser la reconnaissance et les options d’infiltration.','Progression de l’intrigue.'),
+M('Birds with Broken Wings','Retrouver Songbird et enquêter sur les menaces.','Écouter les informations et se préparer à la bifurcation.','Prépare Firestarter.'),
+M('I’ve Seen That Face Before','Préparer l’opération avec Reed.','Explorer les possibilités d’infiltration.','Débloque Firestarter.')
+]],
+['dlc','13 · Firestarter : bifurcation majeure',[
+M('Sauvegarde avant Firestarter','Créer une sauvegarde manuelle séparée.','Ne pas écraser cette sauvegarde.','Permet de découvrir les deux branches.','Point de bifurcation du DLC.','CRUCIAL'),
+M('Firestarter — aider Songbird','Choisir de coopérer avec Songbird pendant l’opération.','Cette branche mène à la fuite de Songbird et à The Killing Moon.','Accès à une voie de récompenses spécifique.','La branche Reed n’est plus accessible dans cette sauvegarde.','CHOIX'),
+M('The Killing Moon','Aider Songbird à atteindre le transport spatial.','Décider si tu tiens ta promesse ou si tu la remets à Reed.','Fin de branche et conséquences sur l’accès à la solution FIA.','Décision déterminante pour Songbird.','CHOIX'),
+M('Who Wants to Live Forever','Mission liée à la possibilité de demander l’aide de la FIA.','Accepter le traitement proposé par Reed si tu souhaites The Tower.','Accès à la conclusion alternative.','Voie qui modifie profondément le futur de V.','CHOIX'),
+M('Things Done Changed','Conclusion liée à la prise en charge médicale de V.','Découvrir l’épilogue et les réactions des personnages.','Fin The Tower si les conditions sont réunies.'),
+M('Firestarter — aider Reed','Choisir d’aider Reed à capturer Songbird.','Cette branche mène à Black Steel in the Hour of Chaos.','Accès à la branche Cynosure.','La branche Songbird n’est plus accessible dans cette sauvegarde.','CHOIX'),
+M('Black Steel in the Hour of Chaos','Préparer l’interception de Songbird.','Rassembler les informations et coordonner l’équipe.','Accès à Somewhat Damaged.'),
+M('Somewhat Damaged','Explorer le complexe Cynosure.','Éviter les dangers, explorer les terminaux et récupérer les éléments accessibles.','Plans et composants utiles pour des objets iconiques.','La zone mérite une fouille complète.','MANQUABLE'),
+M('Leave in Silence','Gérer les suites de la mission Cynosure.','Suivre les objectifs et les événements.','Conclusion de la branche Reed.'),
+M('Four Score and Seven','Suivre les événements liés à Reed et Songbird.','Prendre la décision finale sur Songbird.','Conséquences et récompenses selon le choix.')
+]],
+['dlc','14 · Missions secondaires de Dogtown',[
+M('Balls to the Wall','Rencontrer Paco et Babs et écouter leur histoire.','Explorer les options de dialogue et les moyens de les aider.','Issue favorable possible.'),
+M('Push It to the Limit','Participer aux livraisons de véhicules d’El Capitan.','Livrer le véhicule et respecter les objectifs.','Accès au système de livraison.'),
+M('Just Another Story','Effectuer des livraisons de véhicules.','Éviter les dégâts et respecter le délai.','Récompenses et progression Autofixer.'),
+M('Dazed and Confused','Enquêter sur la disparition d’une célébrité.','Vérifier l’identité des personnes et les indices.','Conclusion variable.'),
+M('Moving Heat','Infiltrer un garage et récupérer une voiture.','Explorer l’accès discret et neutraliser les gardes si nécessaire.','Véhicule et récompense.'),
+M('No Easy Way Out','Aider Aaron dans son conflit.','Discuter avec Aaron et prendre en compte ses souhaits.','Issue dépendant de tes choix.','Écouter Aaron avant de décider.','CHOIX'),
+M('Shot by Both Sides','Aider Bree et enquêter sur les informations recherchées.','Examiner les éléments et décider à qui faire confiance.','Récompenses et conséquences.','Le destin des contacts dépend du choix.','CHOIX'),
+M('Run This Town','Prendre part au changement de pouvoir à Dogtown.','Explorer les identités, dialogues et décisions politiques.','Conséquences sur l’avenir de Dogtown.','Mission à embranchements.','CHOIX'),
+M('Hi Ho Silver Lining','Retrouver Mr. Hands après ses contrats.','Terminer la rencontre au club.','Conclusion de la série du fixer.')
+]],
+['dlc','15 · Contrats et activités de Dogtown',[
+...['Dogtown Saints','Treating Symptoms','Waiting for Dodger','Prototype in the Scraper','The Man Who Killed Jason Foreman','Talent Academy','Spy in the Jungle','Heaviest of Hearts','Roads to Redemption'].map(n=>M(n,'Terminer ce contrat de Mr. Hands et suivre les objectifs du client.','Examiner les preuves, fouiller les lieux et lire les shards avant de partir.','Récompense de contrat et progression du fixer.')),
+M('Largages aériens','Intercepter les ravitaillements qui tombent dans Dogtown.','Éliminer ou contourner les ennemis et ouvrir la caisse.','Composants, argent et butin variable.'),
+M('Activités criminelles de Dogtown','Nettoyer les marqueurs de criminalité organisée.','Fouiller les chefs et récupérer les preuves.','XP et butin.')
+]],
+['loot','16 · Armes iconiques du jeu de base',[
+M('Dying Night','Récompense chez Wilson au début de l’aventure.','La récupérer lors de l’occasion proposée.','Pistolet iconique.'),
+M('Kongou','Dans la suite de Yorinobu pendant The Heist.','Fouiller la chambre avant de quitter Konpeki.','Pistolet iconique.','Manquable après The Heist.','MANQUABLE'),
+M('Satori','Sur la plateforme d’atterrissage de Konpeki Plaza.','Monter sur la plateforme pendant The Heist.','Katana iconique.','Manquable après The Heist.','MANQUABLE'),
+M('Chaos','Associée à Royce dans The Pickup.','Récupérer l’arme lors de la confrontation qui permet de l’obtenir.','Pistolet iconique.','Dépend de l’issue du conflit.','MANQUABLE'),
+M('Doom Doom','Associée à Dum Dum dans Second Conflict.','Préserver les conditions permettant de retrouver Dum Dum.','Revolver iconique.','Dépend de The Pickup et Second Conflict.','MANQUABLE'),
+M('Lizzie','Dans le sous-sol du bar de Judy.','La récupérer lors des visites au bar.','Pistolet technique iconique.'),
+M('Skippy','Dans une ruelle de Heywood.','Le ramasser et suivre sa quête.','Pistolet intelligent iconique.'),
+M('Sir John Phallustiff','Récompense liée à Meredith Stout.','Obtenir les conditions de rencontre avec Meredith dans The Pickup.','Arme de mêlée iconique.','Dépend des choix du prologue.','MANQUABLE'),
+M('Cottonmouth','Dans le cabinet de Fingers.','Fouiller la pièce lors de The Space in Between.','Arme de mêlée iconique.','Ne pas quitter sans fouiller.','MANQUABLE'),
+M('Overwatch','Récompense de Panam.','Terminer Riders on the Storm.','Fusil de précision iconique.'),
+M('Widow Maker','Associée à Nash et à Ghost Town.','Récupérer l’arme pendant l’affrontement concerné.','Fusil technique iconique.'),
+M('Archangel','Récompense de Kerry.','Avancer dans l’arc Kerry.','Revolver iconique.'),
+M('Malorian Arms 3516','Obtenue pendant Chippin’ In.','Suivre l’histoire de Johnny.','Pistolet de Johnny.'),
+M('Crash','Récompense liée à River.','Terminer son histoire secondaire.','Revolver iconique.'),
+M('Ba Xing Chong','Plan iconique associé à Adam Smasher.','Explorer les possibilités de récupération après la confrontation finale.','Fusil intelligent iconique.'),
+M('Byakko','Récompense liée aux contrats de Wakako.','Terminer les contrats de Wakako.','Katana iconique.')
+]],
+['loot','17 · Iconiques Phantom Liberty',[
+M('Erebus','Arme liée à l’exploration de Cynosure et aux composants spécifiques.','Explorer la branche Reed et récupérer le plan de fabrication.','Mitraillette iconique.','Vérifier les composants avant de quitter la zone.','MANQUABLE'),
+M('Militech Canto Mk.6','Cyberdeck lié aux plans de Cynosure.','Récupérer le plan et fabriquer le cyberdeck si les composants sont disponibles.','Cyberdeck iconique.','Plans et composants liés à la branche Reed.','MANQUABLE'),
+M('Pariah','Arme iconique liée à Reed.','Vérifier les événements et récompenses de la branche correspondante.','Pistolet iconique.'),
+M('Hercules 3AX','Arme iconique de Dogtown.','Explorer les zones de contrats qui permettent sa récupération.','Fusil intelligent iconique.'),
+M('Bald Eagle','Arme iconique de Dogtown.','Vérifier les zones de récupération et le butin des missions.','Revolver iconique.'),
+M('Wild Dog','Arme iconique associée à la branche de Reed.','Explorer les récompenses de cette branche.','Fusil iconique.'),
+M('Fang','Arme iconique de Dogtown.','Vérifier les récompenses liées aux événements de Hansen.','Arme de mêlée.'),
+M('Plans et composants Cynosure','Explorer le complexe Cynosure et les zones sécurisées.','Fouiller terminaux, caisses et pièces annexes.','Permet de fabriquer les objets iconiques.')
+]],
+['loot','18 · Véhicules, vêtements et tarot',[
+M('Porsche 911 Turbo','Récompense de Chippin’ In.','Terminer la séquence associée à Johnny.','Véhicule iconique.'),
+M('Rayfield Caliburn','Véhicule disponible dans les Badlands selon la progression.','Explorer le tunnel concerné et vérifier les conditions de déblocage.','Supercar.'),
+M('Véhicules des fixers','Terminer les contrats et monter en réputation.','Consulter les offres de véhicules.','Collection de voitures et motos.'),
+M('Autofixer','Utiliser les terminaux Autofixer et les livraisons.','Accumuler les eddies et consulter les offres.','Véhicules achetables.'),
+M('Vêtements de Johnny','Récupérer lunettes, pantalon, chaussures et veste dans les missions associées.','Fouiller les lieux et suivre les récompenses de quête.','Ensemble de Johnny et progression Breathtaking.'),
+M('Tarot — Fool on the Hill','Trouver les graffitis de tarot dans Night City.','Scanner les 20 cartes initiales.','Progression de Fool on the Hill.'),
+M('Tarot des fins','Découvrir les cartes supplémentaires liées aux conclusions.','Terminer les différentes fins et examiner les cartes apparues.','Collection tarot.'),
+M('Shards et archives','Lire les fragments récupérés dans les contrats et activités.','Fouiller les zones et consulter le journal.','Lore et informations complémentaires.')
+]],
+['ends','19 · Préparation avant Embers',[
+M('Terminer Judy','Finir Pyramid Song et les missions disponibles.','Vérifier les appels et messages.','Arc complet de Judy.'),
+M('Terminer Panam','Finir Queen of the Highway et les missions disponibles.','Vérifier les appels et délais.','Accès à The Star.'),
+M('Terminer River','Finir Following the River.','Vérifier les messages.','Arc complet de River.'),
+M('Terminer Kerry','Finir Boat Drinks.','Vérifier les appels.','Arc complet de Kerry.'),
+M('Terminer Rogue et Johnny','Finir Chippin’ In et Blistering Love.','Vérifier le dialogue du champ pétrolifère.','Accès à la voie Rogue et potentiel secret.'),
+M('Sauver Takemura','Vérifier Search and Destroy.','Revenir dans le bâtiment pour le sauver.','Présence possible dans The Devil.'),
+M('Finir contrats et NCPD','Nettoyer les marqueurs de la carte.','Vérifier chaque quartier.','Complétion des activités.'),
+M('Finir les cyberpsychos','Clôturer les 17 enquêtes auprès de Regina.','Envoyer les rapports.','Récompense Psycho Killer.'),
+M('Sauvegarde avant Embers','Créer une sauvegarde manuelle avant Nocturne OP55N1.','Ne pas écraser cette sauvegarde.','Permet de rejouer les conclusions.','Point de non-retour.','CRUCIAL')
+]],
+['ends','20 · Toutes les fins du jeu de base',[
+M('The Devil — Hanako et Arasaka','Accepter la proposition de Hanako.','Suivre la voie Arasaka. Takemura peut apparaître s’il a été sauvé.','Épilogue Arasaka et variantes selon les choix.'),
+M('The Star — Aldecaldos','Choisir l’aide de Panam au moment décisif.','Terminer les missions de la voie Nomades.','V quitte Night City avec les Nomades.'),
+M('The Sun — Rogue','Choisir la voie de Rogue.','Terminer For Whom the Bell Tolls et Knockin’ on Heaven’s Door.','V devient une légende de l’Afterlife.'),
+M('Temperance — Johnny','Atteindre Mikoshi et laisser Johnny conserver le corps.','Choix final de transfert.','Johnny poursuit sa vie dans le corps de V.'),
+M('Path of Least Resistance','Choisir de mettre fin à l’histoire sur le toit.','Confirmer cette décision.','Conclusion tragique.'),
+M('Don’t Fear the Reaper','Débloquer la voie secrète via les dialogues de Chippin’ In.','Sur le toit, attendre sans choisir immédiatement Rogue ou Panam, jusqu’à la proposition de Johnny.','Assaut solo sur Arasaka.','Difficulté élevée et aucun partenaire.','SECRET')
+]],
+['ends','21 · The Tower et épilogues Phantom Liberty',[
+M('Débloquer The Tower','Choisir la branche qui permet de remettre Songbird à la FIA et obtenir l’accord de Reed pour l’opération.','Suivre les conditions de Who Wants to Live Forever.','Accès à une conclusion supplémentaire.','Pas compatible avec toutes les issues de Songbird.','CHOIX'),
+M('Who Wants to Live Forever','Se rendre au point de rendez-vous pour l’opération.','Confirmer que V accepte le traitement.','Débloque l’épilogue The Tower.'),
+M('Things Done Changed','Découvrir le résultat de l’opération et retrouver les personnages.','Explorer les dialogues et les conséquences.','Conclusion alternative de V.'),
+M('Rejouer les fins du jeu de base','Utiliser la sauvegarde créée avant Embers.','Recommencer les branches et choisir une autre voie.','Découverte des autres épilogues.')
+]]
+];
+let checked={};try{checked=JSON.parse(localStorage.getItem('nightcity-checks')||'{}')}catch(e){}
+let tab='all',filter='all',query='';
+const $=id=>document.getElementById(id);
+function render(){
+let total=0,done=0;G.forEach((g,gi)=>g[2].forEach((m,mi)=>{total++;if(checked[gi+'-'+mi])done++}));
+$('pct').textContent=Math.round(done/total*100)+'%';$('done').textContent=done;$('left').textContent=total-done;$('count').textContent=done;$('bar').style.width=(done/total*100)+'%';
+let out='';
+G.forEach((g,gi)=>{
+if(tab!=='all'&&g[0]!==tab)return;
+let rows=g[2].map((m,mi)=>({m,mi})).filter(({m,mi})=>{
+let c=!!checked[gi+'-'+mi],s=(m.name+' '+m.objective+' '+m.choice+' '+m.reward+' '+m.warning+' '+m.tag).toLowerCase();
+return (!query||s.includes(query))&&(filter==='all'||(filter==='done'&&c)||(filter==='todo'&&!c)||(filter==='important'&&!!m.tag));
+});
+if(!rows.length)return;
+let n=g[2].filter((m,mi)=>checked[gi+'-'+mi]).length;
+out+=`<section class="group"><div class="ghead"><div><h2>${g[1]}</h2><div class="small">${n}/${g[2].length} terminés</div><div class="progress" style="max-width:220px"><i style="width:${n/g[2].length*100}%"></i></div></div><span>⌄</span></div><div class="gbody">`;
+rows.forEach(({m,mi})=>{
+let id=gi+'-'+mi,tag=m.tag?`<span class="tag">${m.tag}</span>`:'';
+out+=`<article class="mission"><div class="mrow"><input type="checkbox" data-id="${id}" ${checked[id]?'checked':''}><div class="mtext"><div class="mname">${m.name}${tag}</div><div class="small">${m.objective}</div></div><button class="more">Détails</button></div><div class="details hidden"><b>OBJECTIF</b>${m.objective}<b>CHOIX RECOMMANDÉ</b>${m.choice}<b>CONSÉQUENCES / RÉCOMPENSES</b>${m.reward}${m.warning?`<b>À NE PAS MANQUER</b>${m.warning}`:''}</div></article>`;
+});
+out+='</div></section>';
+});
+$('groups').innerHTML=out||'<div class="panel" style="padding:16px">Aucun résultat. Essaie une autre recherche.</div>';
+$('groups').querySelectorAll('input[type=checkbox]').forEach(x=>x.addEventListener('change',()=>{checked[x.dataset.id]=x.checked;localStorage.setItem('nightcity-checks',JSON.stringify(checked));render()}));
+$('groups').querySelectorAll('.more').forEach(x=>x.addEventListener('click',()=>{let d=x.closest('.mission').querySelector('.details');d.classList.toggle('hidden');x.textContent=d.classList.contains('hidden')?'Détails':'Fermer'}));
+$('groups').querySelectorAll('.ghead').forEach(x=>x.addEventListener('click',()=>x.nextElementSibling.classList.toggle('hidden')));
+}
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));render()}));
+document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));render()}));
+$('search').addEventListener('input',e=>{query=e.target.value.toLowerCase().trim();render()});
+$('export').addEventListener('click',()=>{let a=document.createElement('a'),u=URL.createObjectURL(new Blob([JSON.stringify(checked,null,2)],{type:'application/json'}));a.href=u;a.download='night-city-progression.json';a.click();URL.revokeObjectURL(u)});
+$('import').addEventListener('click',()=>$('file').click());
+$('file').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let v=JSON.parse(r.result);if(!v||typeof v!=='object'||Array.isArray(v))throw 0;checked=v;localStorage.setItem('nightcity-checks',JSON.stringify(checked));render()}catch(_){alert('Fichier JSON invalide')}};r.readAsText(f)});
+$('reset').addEventListener('click',()=>{if(confirm('Effacer toutes les cases cochées ?')){checked={};localStorage.removeItem('nightcity-checks');render()}});
+render();
+</script></body></html>
